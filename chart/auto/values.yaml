@@ -33,7 +33,7 @@ ingress:
     # Force HTTPS redirect
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
     # cert-manager annotation for automatic certificate management
-    cert-manager.io/cluster-issuer: letsencrypt-prod
+    cert-manager.io/cluster-issuer: letsencrypt-prod-dns01
   hosts:
     - host: auto.apollo.srv64.de
       paths:

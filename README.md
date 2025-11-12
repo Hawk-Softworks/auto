@@ -167,3 +167,5 @@ kubectl get application auto -n argocd -o yaml
 # ArgoCD Logs
 kubectl logs -n argocd -l app.kubernetes.io/name=argocd-application-controller
 ```
+
+v.1.0.13

@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auto Kilometerstand Tracker</title>
+
+    <!-- PWA Meta Tags -->
+    <meta name="description" content="Verfolge deinen Kilometerstand und bleibe im Budget">
+    <meta name="theme-color" content="#667eea">
+    <link rel="manifest" href="manifest.json">
+
+    <!-- Apple Touch Icon -->
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="KM Tracker">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        .main-content {
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+            text-align: center;
+        }
+
+        .subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .info-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .info-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .info-card-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-card-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 18px;
+            transition: border-color 0.3s;
+            outline: none;
+        }
+
+        input[type="number"]:focus {
+            border-color: #667eea;
+        }
+
+        .result {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            margin-top: 0;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+        }
+
+        .result.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .result.positive {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+
+        .result.negative {
+            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+        }
+
+        .result-label {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .result-value {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .result-description {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px 15px;
+            }
+
+            h1 {
+                font-size: 22px;
+                margin-bottom: 5px;
+            }
+
+            .subtitle {
+                margin-bottom: 20px;
+                font-size: 13px;
+            }
+
+            .info-cards {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .result-value {
+                font-size: 28px;
+            }
+
+            .result {
+                padding: 15px;
+            }
+
+            .info-card {
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Auto Kilometerstand</h1>
+        <p class="subtitle">Vertragsstart: 07.10.2025</p>
+
+        <div class="main-content">
+            <div class="input-group">
+                <label for="currentKm">Aktueller Kilometerstand</label>
+                <input type="number" id="currentKm" placeholder="z.B. 5420" min="0" step="1">
+            </div>
+
+            <div class="result" id="result">
+                <div class="result-label">Verfügbare Kilometer</div>
+                <div class="result-value" id="resultValue">-</div>
+                <div class="result-description" id="resultDescription"></div>
+            </div>
+        </div>
+
+        <div class="info-cards">
+            <div class="info-card">
+                <div class="info-card-label">Limit pro Jahr</div>
+                <div class="info-card-value">10.000 km</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-label">Gesamt (4 Jahre)</div>
+                <div class="info-card-value">40.000 km</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-label">Tage seit Start</div>
+                <div class="info-card-value" id="daysSinceStart">-</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-label">km pro Tag</div>
+                <div class="info-card-value" id="kmPerDay">-</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Konstanten
+        const START_DATE = new Date('2025-10-07T00:00:00+02:00'); // Deutsche Zeitzone
+        const TOTAL_YEARS = 4;
+        const TOTAL_KM = 40000;
+        const TOTAL_DAYS = TOTAL_YEARS * 365.25; // Berücksichtigt Schaltjahre
+        const KM_PER_DAY = TOTAL_KM / TOTAL_DAYS;
+
+        // Elemente
+        const currentKmInput = document.getElementById('currentKm');
+        const resultDiv = document.getElementById('result');
+        const resultValue = document.getElementById('resultValue');
+        const resultDescription = document.getElementById('resultDescription');
+        const daysSinceStartEl = document.getElementById('daysSinceStart');
+        const kmPerDayEl = document.getElementById('kmPerDay');
+
+        // Hilfsfunktion: Aktuelles Datum in deutscher Zeitzone
+        function getGermanDate() {
+            const now = new Date();
+            const germanTimeString = now.toLocaleString('de-DE', {
+                timeZone: 'Europe/Berlin',
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            });
+            const [day, month, year] = germanTimeString.split(', ')[0].split('.');
+            return new Date(year, month - 1, day);
+        }
+
+        // Berechne Tage seit Start
+        function getDaysSinceStart() {
+            const today = getGermanDate();
+            const startDate = new Date(2025, 9, 7); // 7. Oktober 2025 (Monat ist 0-basiert)
+            const diffTime = today - startDate;
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            return Math.max(0, diffDays); // Verhindere negative Werte
+        }
+
+        // Aktualisiere Info-Karten
+        function updateInfoCards() {
+            const daysSinceStart = getDaysSinceStart();
+            daysSinceStartEl.textContent = daysSinceStart;
+            kmPerDayEl.textContent = KM_PER_DAY.toFixed(2);
+        }
+
+        // Berechne verfügbare Kilometer
+        function calculateAvailableKm() {
+            const currentKm = parseFloat(currentKmInput.value);
+
+            if (isNaN(currentKm) || currentKm < 0) {
+                resultDiv.classList.remove('show');
+                return;
+            }
+
+            const daysSinceStart = getDaysSinceStart();
+            const allowedKm = KM_PER_DAY * daysSinceStart;
+            const availableKm = allowedKm - currentKm;
+
+            // Ergebnis anzeigen
+            resultValue.textContent = availableKm.toFixed(0) + ' km';
+
+            // Beschreibung und Farbe basierend auf verfügbaren km
+            if (availableKm > 0) {
+                resultDiv.className = 'result show positive';
+                resultDescription.textContent = 'Du bist im Budget! Du kannst noch ' + availableKm.toFixed(0) + ' km fahren.';
+            } else {
+                resultDiv.className = 'result show negative';
+                resultDescription.textContent = 'Achtung! Du hast das Budget um ' + Math.abs(availableKm).toFixed(0) + ' km überschritten.';
+            }
+        }
+
+        // Event Listener
+        currentKmInput.addEventListener('input', calculateAvailableKm);
+
+        // Initialisierung
+        updateInfoCards();
+        calculateAvailableKm();
+
+        // Service Worker Registrierung für PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then((registration) => {
+                        console.log('Service Worker registriert:', registration.scope);
+                    })
+                    .catch((error) => {
+                        console.log('Service Worker Registrierung fehlgeschlagen:', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>

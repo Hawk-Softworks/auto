@@ -73,6 +73,13 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Prepare Docker tags
+        if: steps.check.outputs.skip == 'false'
+        id: docker_tags
+        run: |
+          OWNER_LOWERCASE=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          echo "owner=$OWNER_LOWERCASE" >> $GITHUB_OUTPUT
+
       - name: Build and push Docker image
         if: steps.check.outputs.skip == 'false'
         uses: docker/build-push-action@v5
@@ -80,8 +87,8 @@ jobs:
           context: .
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/auto:${{ steps.version.outputs.version }}
-            ghcr.io/${{ github.repository_owner }}/auto:latest
+            ghcr.io/${{ steps.docker_tags.outputs.owner }}/auto:${{ steps.version.outputs.version }}
+            ghcr.io/${{ steps.docker_tags.outputs.owner }}/auto:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 

@@ -91,6 +91,7 @@ jobs:
           context: .
           platforms: linux/amd64
           push: true
+          outputs: type=image,oci-mediatypes=false
           tags: |
             ghcr.io/${{ steps.docker_tags.outputs.owner }}/auto:${{ steps.version.outputs.version }}
             ghcr.io/${{ steps.docker_tags.outputs.owner }}/auto:latest

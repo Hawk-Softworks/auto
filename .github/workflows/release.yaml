@@ -78,8 +78,13 @@ jobs:
 
       - name: Build and push Docker image
         if: steps.check.outputs.skip == 'false'
+        env:
+          DOCKER_BUILDKIT: 0
         run: |
-          # Build image with native docker
+          # Disable BuildKit and use legacy builder
+          export DOCKER_BUILDKIT=0
+
+          # Build image with native docker (legacy builder)
           docker build -t ghcr.io/${{ steps.docker_tags.outputs.owner }}/auto:${{ steps.version.outputs.version }} .
           docker tag ghcr.io/${{ steps.docker_tags.outputs.owner }}/auto:${{ steps.version.outputs.version }} ghcr.io/${{ steps.docker_tags.outputs.owner }}/auto:latest
 

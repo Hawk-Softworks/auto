@@ -89,8 +89,7 @@ jobs:
           tags: |
             ghcr.io/${{ steps.docker_tags.outputs.owner }}/auto:${{ steps.version.outputs.version }}
             ghcr.io/${{ steps.docker_tags.outputs.owner }}/auto:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          provenance: false
 
       - name: Install Helm
         if: steps.check.outputs.skip == 'false'

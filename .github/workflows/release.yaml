@@ -110,6 +110,7 @@ jobs:
           mkdir -p .deploy
           # Override Chart.yaml version with calculated version
           helm package chart/auto --version ${{ steps.version.outputs.version }} --app-version ${{ steps.version.outputs.version }} --destination .deploy
+          # Chart will be named auto-chart-VERSION.tgz due to Chart.yaml name field
 
       - name: Login to GHCR for Helm
         if: steps.check.outputs.skip == 'false'
@@ -120,7 +121,7 @@ jobs:
         if: steps.check.outputs.skip == 'false'
         run: |
           OWNER_LOWERCASE=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
-          helm push .deploy/auto-${{ steps.version.outputs.version }}.tgz oci://ghcr.io/${OWNER_LOWERCASE}
+          helm push .deploy/auto-chart-${{ steps.version.outputs.version }}.tgz oci://ghcr.io/${OWNER_LOWERCASE}
 
       - name: Create Git Tag
         if: steps.check.outputs.skip == 'false'

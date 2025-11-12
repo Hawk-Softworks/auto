@@ -1,5 +1,5 @@
 apiVersion: v2
-name: auto
+name: auto-chart
 description: Auto Kilometerstand Tracker - PWA deployed on Kubernetes with GitOps (ArgoCD)
 
 # A chart can be either an 'application' or a 'library' chart.

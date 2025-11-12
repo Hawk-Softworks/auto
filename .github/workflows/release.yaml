@@ -78,15 +78,14 @@ jobs:
 
       - name: Build and push Docker image
         if: steps.check.outputs.skip == 'false'
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          push: true
-          tags: |
-            ghcr.io/${{ steps.docker_tags.outputs.owner }}/auto:${{ steps.version.outputs.version }}
-            ghcr.io/${{ steps.docker_tags.outputs.owner }}/auto:latest
-          provenance: false
-          sbom: false
+        run: |
+          # Build image with native docker
+          docker build -t ghcr.io/${{ steps.docker_tags.outputs.owner }}/auto:${{ steps.version.outputs.version }} .
+          docker tag ghcr.io/${{ steps.docker_tags.outputs.owner }}/auto:${{ steps.version.outputs.version }} ghcr.io/${{ steps.docker_tags.outputs.owner }}/auto:latest
+
+          # Push both tags
+          docker push ghcr.io/${{ steps.docker_tags.outputs.owner }}/auto:${{ steps.version.outputs.version }}
+          docker push ghcr.io/${{ steps.docker_tags.outputs.owner }}/auto:latest
 
       - name: Install Helm
         if: steps.check.outputs.skip == 'false'
